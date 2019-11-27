@@ -1,5 +1,7 @@
 package com.consulexample.consumer.consumerdemo.service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCollapser;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,4 +21,11 @@ public interface ConsumerSer {
      */
     @GetMapping("/provider/sayHello")
     String providerSayHello();
+
+    /**
+     * 测试Hysrix消费降级
+     * @return
+     */
+    @GetMapping("/provider/delaySayHello")
+    String providerDelaySayHello();
 }

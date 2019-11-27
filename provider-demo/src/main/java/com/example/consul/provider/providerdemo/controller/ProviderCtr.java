@@ -29,4 +29,12 @@ public class ProviderCtr {
     public String sayHello(){
         return providerSer.sayHello();
     }
+
+
+    @GetMapping("/delaySayHello")
+    public String delaySayHello() throws Exception{
+        //添加睡眠时间，测试Hystrix消费降级
+        Thread.sleep(5000L);
+        return providerSer.sayHello();
+    }
 }

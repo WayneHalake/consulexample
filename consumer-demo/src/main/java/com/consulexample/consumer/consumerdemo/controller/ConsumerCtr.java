@@ -1,6 +1,7 @@
 package com.consulexample.consumer.consumerdemo.controller;
 
 import com.consulexample.consumer.consumerdemo.service.ConsumerSer;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -42,8 +43,9 @@ public class ConsumerCtr {
         ServiceInstance instance = loadBalancerClient.choose("consul-provider");
         System.out.println("Hostname:"+ instance.getHost());
         System.out.println("Service name:"+ instance.getInstanceId());
+        System.out.println("ServiceId:" + instance.getServiceId());
         System.out.println("uri:"+ instance.getUri());
-        return restTemplate.getForObject(instance.getUri()+"/provider/sayHello", String.class);
+        return restTemplate.getForObject("http://" + instance.getServiceId() + "/provider/sayHello", String.class);
     }
 
     /**
@@ -53,6 +55,22 @@ public class ConsumerCtr {
     @GetMapping("/feignCell")
     public String feignCell(){
         return consumerSer.providerSayHello();
+    }
+
+
+    @GetMapping("/feignCellHystrix")
+    //添加服务消费失败时，调用的方法 （服务消费降级）
+    @HystrixCommand(fallbackMethod = "fallback")
+    public String feignCellHystrix(){
+        return consumerSer.providerDelaySayHello();
+    }
+
+    /**
+     * 服务消费失败时调用的方法
+     * @return
+     */
+    public String fallback(){
+        return "fallback";
     }
 
 }
